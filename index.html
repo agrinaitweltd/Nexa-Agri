@@ -1,0 +1,61 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>NexaAgri Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              nexa: {
+                blue: '#00c2ff',
+                green: '#00df82',
+                dark: '#0a0a1a'
+              },
+              primary: {
+                50: '#f0fdf4',
+                100: '#dcfce7',
+                500: '#00df82',
+                600: '#05c473',
+                700: '#04a15f',
+                800: '#067d4c',
+                900: '#07663f',
+              },
+              soil: {
+                500: '#8c6b4b',
+                700: '#5c4530',
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@19.0.0",
+    "react-dom": "https://esm.sh/react-dom@19.0.0",
+    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
+    "react-router-dom": "https://esm.sh/react-router-dom@7.1.1?deps=react@19.0.0,react-dom@19.0.0",
+    "recharts": "https://esm.sh/recharts@3.6.0?deps=react@19.0.0,react-dom@19.0.0",
+    "lucide-react": "https://esm.sh/lucide-react@0.468.0?deps=react@19.0.0",
+    "jspdf": "https://esm.sh/jspdf@2.5.1",
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.47.10",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "@clerk/nextjs/": "https://esm.sh/@clerk/nextjs@^6.36.5/",
+    "next": "https://esm.sh/next@^16.1.1",
+    "@clerk/nextjs": "https://esm.sh/@clerk/nextjs@^6.36.5"
+  }
+}
+</script>
+  </head>
+  <body class="bg-slate-50 text-slate-900 antialiased dark:bg-slate-900 dark:text-slate-100">
+    <div id="root"></div>
+  </body>
+</html>
