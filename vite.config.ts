@@ -6,19 +6,18 @@ export default defineConfig({
   base: '/',
   build: {
     outDir: 'dist',
-    sourcemap: true,
+    sourcemap: false,
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          charts: ['recharts'],
-          icons: ['lucide-react']
+          'vendor': ['react', 'react-dom', 'react-router-dom'],
+          'ui-libs': ['lucide-react', 'recharts', 'jspdf']
         }
       }
     }
   },
   server: {
     port: 3000,
-    historyApiFallback: true
+    host: true
   }
 });
