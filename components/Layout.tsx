@@ -9,7 +9,7 @@ import {
 import { NexaLogo } from './NexaLogo';
 
 export default function Layout() {
-  const { user, logout, notifications, markNotificationRead, markAllNotificationsRead, theme, requisitions, balance, formatCurrency, messages } = useApp();
+  const { user, logout, notifications, markNotificationRead, markAllNotificationsRead, theme, balance, formatCurrency, messages } = useApp();
   const location = useLocation();
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -26,7 +26,7 @@ export default function Layout() {
     return user?.permissions?.includes(perm as any) || false;
   };
 
-  // Preset Theme Colors Mapping
+  // Preset Theme Colors Mapping with safe fallbacks
   const themeColors: Record<string, string> = {
       emerald: 'bg-emerald-600 shadow-emerald-600/30 text-emerald-600',
       blue: 'bg-blue-600 shadow-blue-600/30 text-blue-600',
@@ -37,9 +37,10 @@ export default function Layout() {
   };
 
   const activeThemeColor = user?.dashboardTheme || 'emerald';
-  const activeBgClass = themeColors[activeThemeColor].split(' ')[0];
-  const activeShadowClass = themeColors[activeThemeColor].split(' ')[1];
-  const activeTextClass = themeColors[activeThemeColor].split(' ')[2];
+  const colorString = themeColors[activeThemeColor] || themeColors.emerald;
+  const activeBgClass = colorString.split(' ')[0];
+  const activeShadowClass = colorString.split(' ')[1];
+  const activeTextClass = colorString.split(' ')[2];
 
   const NavItem = ({ to, icon: Icon, label, badge }: { to: string, icon: any, label: string, badge?: number }) => {
     const isActive = location.pathname === to;
@@ -75,8 +76,8 @@ export default function Layout() {
       {/* Sidebar */}
       <aside 
         className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-slate-900 shadow-2xl transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:shadow-none border-r border-slate-200 dark:border-slate-800 ${
-          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+          isSidebarOpen ? 'translate-x-0' : '-x-full'
+        } ${!isSidebarOpen && 'md:translate-x-0'}`}
       >
         <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center">
@@ -128,7 +129,7 @@ export default function Layout() {
           <div className="flex-1 flex flex-col justify-center px-6 md:px-10">
             <div className="flex items-center space-x-3">
                 <h2 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white tracking-tight leading-tight truncate">
-                    Hello, {user?.name?.split(' ')[0]}!
+                    Hello, {user?.name?.split(' ')[0] || 'User'}!
                 </h2>
             </div>
             <div className="flex items-center space-x-2 mt-1">
@@ -136,7 +137,7 @@ export default function Layout() {
                   {user?.companyName || 'Your Business'}
                 </p>
                 <ChevronRight size={12} className="text-slate-300" />
-                <span className={`${activeTextClass} text-[10px] md:text-xs font-bold uppercase tracking-widest`}>{user?.sector}</span>
+                <span className={`${activeTextClass} text-[10px] md:text-xs font-bold uppercase tracking-widest`}>{user?.sector || 'General'}</span>
             </div>
           </div>
 
