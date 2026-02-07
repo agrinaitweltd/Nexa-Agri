@@ -1,6 +1,7 @@
+
 import React from 'react';
 import * as ReactRouterDOM from 'react-router-dom';
-const { HashRouter, Routes, Route, Navigate } = ReactRouterDOM as any;
+const { BrowserRouter, Routes, Route, Navigate } = ReactRouterDOM as any;
 import { AppProvider, useApp, MOCK_AUTH } from './context/AppContext';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
@@ -39,11 +40,9 @@ const ProtectedRoute = ({ children, requireSuperAdmin = false }: { children?: Re
 
   const isSuperAdmin = user.id === 'oliver-001';
 
-  // Strict Redirection logic
   if (requireSuperAdmin && !isSuperAdmin) return <Navigate to="/app" replace />;
   if (!requireSuperAdmin && isSuperAdmin) return <Navigate to="/admin" replace />;
 
-  // Normal user onboarding
   if (!user.setupComplete && !isSuperAdmin) return <Onboarding />; 
   
   return (
@@ -57,12 +56,11 @@ const ProtectedRoute = ({ children, requireSuperAdmin = false }: { children?: Re
 export default function App() {
   return (
     <AppProvider>
-        <HashRouter>
+        <BrowserRouter>
             <Routes>
                 <Route path="/" element={<Landing />} />
                 <Route path="/login" element={<Login />} />
                 
-                {/* User Portal */}
                 <Route path="/app" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
                     <Route index element={<Dashboard />} />
                     <Route path="farms" element={<Farms />} />
@@ -80,12 +78,10 @@ export default function App() {
                     <Route path="reports" element={<Reports />} />
                 </Route>
 
-                {/* Exclusive Admin Portal */}
                 <Route path="/admin" element={<ProtectedRoute requireSuperAdmin><AdminPortal /></ProtectedRoute>} />
-
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
-        </HashRouter>
+        </BrowserRouter>
     </AppProvider>
   );
 }

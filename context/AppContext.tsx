@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { 
   User, Farm, InventoryItem, Transaction, Requisition, ExportOrder, Notification, Harvest, Crop, Animal, StaffMember, StaffPayment, Client, StaffTask, DashboardWidget, Theme, DashboardTheme, Permission, SubscriptionPlanId, CropStatus, AppDocument, Message, Announcement, PurchaseOrder, PendingSignup, ActivationStatus, Department
@@ -100,6 +101,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [theme, setTheme] = useState<Theme>('dark');
   const [loading, setLoading] = useState(true);
 
+  // Operational State
   const [farms, setFarms] = useState<Farm[]>([]);
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -119,7 +121,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [pendingSignups, setPendingSignups] = useState<PendingSignup[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
 
-  useEffect(() => {
+  // Initial Load from Storage
+  const loadState = () => {
     const savedUser = localStorage.getItem('nexa_user');
     const savedSignups = localStorage.getItem('nexa_pending_signups');
     
@@ -150,19 +153,29 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             setDepartments(data.departments || []);
         }
       } catch (e) {
-        localStorage.removeItem('nexa_user');
+        console.error("Critical State Corruption Detected:", e);
       }
     }
-
     if (savedSignups) {
-      try {
-        setPendingSignups(JSON.parse(savedSignups));
-      } catch (e) {}
+      try { setPendingSignups(JSON.parse(savedSignups)); } catch (e) {}
     }
-    
+  };
+
+  useEffect(() => {
+    loadState();
     setLoading(false);
+
+    // Cross-tab sync listener
+    const syncHandler = (e: StorageEvent) => {
+        if (e.key === 'nexa_user' || e.key?.startsWith('nexa_data_')) {
+            loadState();
+        }
+    };
+    window.addEventListener('storage', syncHandler);
+    return () => window.removeEventListener('storage', syncHandler);
   }, []);
 
+  // Sync state to storage on every change
   useEffect(() => {
     if (user) {
         const storageKey = `nexa_data_${user.id}`;
@@ -173,6 +186,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             departments
         };
         localStorage.setItem(storageKey, JSON.stringify(data));
+        localStorage.setItem('nexa_user', JSON.stringify(user));
     }
   }, [farms, inventory, transactions, notifications, requisitions, crops, staff, harvests, exports, animals, clients, purchaseOrders, staffPayments, documents, messages, announcements, departments, user]);
 
@@ -236,7 +250,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 dashboardTheme: 'emerald'
             };
             setUser(mockUser);
-            localStorage.setItem('nexa_user', JSON.stringify(mockUser));
             return true;
         }
 
@@ -258,10 +271,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             if (found.activationStatus === 'REJECTED') return 'REJECTED';
             
             setUser(found);
-            localStorage.setItem('nexa_user', JSON.stringify(found));
             return true;
         }
-        return 'INVALID';
     }
     return 'INVALID';
   };
@@ -348,24 +359,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const completeOnboarding = async () => {
-    const updated = user ? { ...user, setupComplete: true } : null;
-    setUser(updated);
-    if (updated) {
-        localStorage.setItem('nexa_user', JSON.stringify(updated));
-        const registry = getAllUsers();
-        const uReg = registry.map((u: User) => u.id === updated.id ? updated : u);
-        localStorage.setItem('nexa_mock_registry', JSON.stringify(uReg));
+    if (user) {
+        const updated = { ...user, setupComplete: true };
+        setUser(updated);
     }
   };
 
   const updateUser = async (updates: Partial<User>) => {
-    const updated = user ? { ...user, ...updates } : null;
-    setUser(updated);
-    if (updated) {
-        localStorage.setItem('nexa_user', JSON.stringify(updated));
-        const registry = getAllUsers();
-        const uReg = registry.map((u: User) => u.id === updated.id ? updated : u);
-        localStorage.setItem('nexa_mock_registry', JSON.stringify(uReg));
+    if (user) {
+        const updated = { ...user, ...updates };
+        setUser(updated);
     }
   };
 
@@ -495,7 +498,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const approvePurchaseOrder = async (id: string) => setPurchaseOrders(prev => prev.map(po => po.id === id ? { ...po, status: 'ORDERED' } : po));
   
   const addPurchaseOrder = async (order: PurchaseOrder, initialPayment: number, method: string) => {
-      // Check stock availability before committing sale
       for (const item of order.items) {
           const invName = item.productName.split(' (')[0];
           const invGrade = item.productName.split('(')[1]?.replace(')', '') || 'Standard';
@@ -506,7 +508,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           }
       }
 
-      // Deduct stock
       order.items.forEach(item => {
           const invName = item.productName.split(' (')[0];
           const invGrade = item.productName.split('(')[1]?.replace(')', '') || 'Standard';
@@ -514,8 +515,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       });
 
       setPurchaseOrders(prev => [...prev, order]);
-      addNotification(`Sales Manifest Generated: ${order.orderNumber}`, 'SUCCESS', '/app/inventory');
-
       if (initialPayment > 0) {
           addTransaction({
               id: Math.random().toString(),
@@ -537,7 +536,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (po.id === id) {
         const updated = { ...po, amountPaid: po.amountPaid + amount };
         updated.paymentStatus = updated.amountPaid >= po.totalAmount ? 'PAID' : (updated.amountPaid > 0 ? 'PARTIAL' : 'UNPAID');
-        
         addTransaction({
             id: Math.random().toString(),
             type: 'INCOME',
@@ -547,7 +545,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             date: new Date().toISOString(),
             paymentMethod: method as any
         });
-        
         return updated;
       }
       return po;
@@ -597,17 +594,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const replayTutorial = () => setUser(prev => prev ? { ...prev, tutorialCompleted: false } : null);
   const updateDashboardWidgets = async (dashboardWidgets: DashboardWidget[]) => updateUser({ dashboardWidgets });
   const updateDashboardTheme = async (dashboardTheme: DashboardTheme) => updateUser({ dashboardTheme });
-  
-  const selectSubscription = async (planId: SubscriptionPlanId) => {
-    await updateUser({ subscriptionPlan: planId });
-  };
-
+  const selectSubscription = async (planId: SubscriptionPlanId) => updateUser({ subscriptionPlan: planId });
   const addDocument = async (doc: AppDocument) => setDocuments(prev => [doc, ...prev]);
   const deleteDocument = async (id: string) => setDocuments(prev => prev.filter(d => d.id !== id));
   const sendMessage = async (msg: Message) => setMessages(prev => [msg, ...prev]);
   const markMessageRead = async (id: string) => setMessages(prev => prev.map(m => m.id === id ? { ...m, read: true } : m));
   const addAnnouncement = async (ann: Announcement) => setAnnouncements(prev => [ann, ...prev]);
-
   const addDepartment = async (dept: Department) => setDepartments(prev => [...prev, dept]);
   const updateDepartment = async (dept: Department) => setDepartments(prev => prev.map(d => d.id === dept.id ? dept : d));
   const deleteDepartment = async (id: string) => setDepartments(prev => prev.filter(d => d.id !== id));
