@@ -17,7 +17,9 @@
     "jspdf": "^2.5.1",
     "clsx": "^2.1.1",
     "tailwind-merge": "^2.5.5",
-    "@supabase/supabase-js": "^2.95.3"
+    "@supabase/supabase-js": "^2.95.3",
+    "next": "^15.1.6",
+    "@clerk/nextjs": "^6.11.1"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",
