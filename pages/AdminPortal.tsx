@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { NexaLogo } from '../components/NexaLogo';
@@ -29,23 +30,33 @@ export default function AdminPortal() {
 
     useEffect(() => {
         setUsers(getAllUsers());
-    }, [pendingSignups, activeView]);
+    }, [pendingSignups, activeView, getAllUsers]);
 
     const handleProvision = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsProvisioning(true);
         try {
-            const res = await register({
-                ...provisionForm,
-                activationStatus: 'ACTIVE',
-                setupComplete: false // Force them through onboarding
-            });
+            // Updated to pass email, password, and metadata correctly as 3 arguments
+            const res = await register(
+                provisionForm.email,
+                provisionForm.password,
+                {
+                  full_name: provisionForm.name,
+                  company_name: provisionForm.companyName,
+                  business_type: provisionForm.businessType,
+                  sector: provisionForm.sector,
+                  role: provisionForm.role,
+                  activationStatus: 'ACTIVE',
+                  setupComplete: false // Force them through onboarding
+                }
+            );
             if (res.success) {
                 setShowProvisionModal(false);
                 setProvisionForm({ name: '', email: '', password: '', companyName: '', businessType: 'General Agriculture', sector: 'GENERAL', role: 'ADMIN' });
                 setActiveView('USERS');
             } else {
-                alert(res.message);
+                // Fixed: use res.error instead of res.message
+                alert(res.error || "Provisioning failed.");
             }
         } finally {
             setIsProvisioning(false);
