@@ -35,8 +35,8 @@ export default function SubscriptionModal() {
     { 
         id: 'MONTHLY', 
         name: 'Flexible Monthly', 
-        price: 5,
-        priceStr: 'USD 5', 
+        price: 10000,
+        priceStr: '10,000 UGX', 
         period: '/ month', 
         icon: Zap, 
         color: 'text-emerald-500',
@@ -45,8 +45,8 @@ export default function SubscriptionModal() {
     { 
         id: 'QUARTERLY', 
         name: 'Growth Quarterly', 
-        price: 14.99,
-        priceStr: 'USD 14.99', 
+        price: 25000,
+        priceStr: '25,000 UGX', 
         period: '/ 3 months', 
         icon: Star, 
         color: 'text-blue-500',
@@ -55,8 +55,8 @@ export default function SubscriptionModal() {
     { 
         id: 'YEARLY', 
         name: 'Enterprise Yearly', 
-        price: 55,
-        priceStr: 'USD 55', 
+        price: 90000,
+        priceStr: '90,000 UGX', 
         period: '/ year', 
         icon: Rocket, 
         color: 'text-purple-500',
@@ -161,7 +161,7 @@ export default function SubscriptionModal() {
                             <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 mb-6">{plan.desc}</p>
                             
                             <div className="mb-8">
-                                <span className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white">{plan.priceStr}</span>
+                                <span className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white">{plan.priceStr}</span>
                                 <span className="text-slate-400 font-bold text-xs uppercase tracking-widest ml-1">{plan.period}</span>
                             </div>
 

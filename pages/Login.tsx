@@ -460,7 +460,7 @@ export default function Login() {
                         <LockIcon size={32} />
                     </div>
                     <h2 className="text-4xl font-black text-slate-900 tracking-tighter mb-4 leading-none">Account Activation</h2>
-                    <p className="text-slate-500 font-medium mb-10 max-w-sm">Initialization of your secure agricultural hub requires a activation fee.</p>
+                    <p className="text-slate-500 font-medium mb-10 max-w-sm">Initialization of your secure agricultural hub requires a monthly activation fee of <span className="font-black text-slate-900 underline">10,000 UGX</span>.</p>
                     
                     {/* Re-designed Card Layout */}
                     <div className="w-full perspective-1000 group">
@@ -488,7 +488,7 @@ export default function Login() {
                                 <div className="flex justify-between items-end border-t border-white/5 pt-8">
                                     <div>
                                         <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Routing</p>
-                                        <p className="font-bold text-nexa-green uppercase text-xs">Direct Activation</p>
+                                        <p className="font-bold text-nexa-green uppercase text-xs">Direct Activation • 10,000 UGX</p>
                                     </div>
                                     <div className="text-right">
                                         <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Status</p>
