@@ -11,17 +11,20 @@ export default function SyncUser() {
   useEffect(() => {
     async function sync() {
       if (isLoaded && user) {
-        // Upsert user profile into Supabase
-        const { error } = await supabase
-          .from('profiles')
-          .upsert({
-            id: user.id,
-            email: user.primaryEmailAddress?.emailAddress,
-            name: user.fullName || user.username || 'Nexa User',
-            updated_at: new Date().toISOString(),
-          }, { onConflict: 'id' });
+        try {
+          const { error } = await supabase
+            .from('profiles')
+            .upsert({
+              id: user.id,
+              email: user.primaryEmailAddress?.emailAddress,
+              name: user.fullName || user.username || 'Nexa User',
+              updated_at: new Date().toISOString(),
+            }, { onConflict: 'id' });
 
-        if (error) console.error("Profile sync error:", error);
+          if (error) console.error("Profile sync error:", error);
+        } catch (err) {
+          console.error("Critical sync failure:", err);
+        }
       }
     }
     sync();
